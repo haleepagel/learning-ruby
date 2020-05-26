@@ -56,12 +56,98 @@
 #     puts name
 # end
 
-# SWITCHING OVER TO USE THE CSV LIBRARY FROM RUBY
+# # SWITCHING OVER TO USE THE CSV LIBRARY FROM RUBY
+
+# contents = CSV.open "event_attendees.csv", headers: true
+# contents.each do |row|
+#     name = row[2]
+#     puts name
+# end
+
+# # ACCESSING COLUMNS BY THEIR NAMES
+# require "csv"
+# puts "EventManager Initialized!"
+
+# contents = CSV.open "event_attendees.csv", headers: true, header_converters: :symbol
+# contents.each do |row|
+#     name = row[:first_name]
+#     puts name
+# end
+
+# # DISPLAYING ZIP CODES OF ALL ATTENDEES
+# require "csv"
+# puts "EventManager Initialized!"
+
+# contents = CSV.open "event_attendees.csv", headers: true, header_converters: :symbol
+# contents.each do |row|
+#     name = row[:first_name]
+#     zipcode = row[:zipcode]
+#     puts "#{name} #{zipcode}"
+# end
+
+# # CLEANING UP OUR ZIP CODES
+# # SOME ZIP CODES ARE REPRESENTED WITH LESS THAN FIVE DIGITS AND SOME ARE COMPLETELY MISSING
+# require "csv"
+# puts "EventManager Initialized!"
+
+# contents = CSV.open "event_attendees.csv", headers: true, header_converters: :symbol
+# contents.each do |row|
+#     name = row[:first_name]
+#     zipcode = row[:zipcode]
+#     # if the zip code is less than 5 digits, add 0s to the front until it is 5 digits long
+#     if zipcode.nil?
+#         zipcode="00000"
+#     elsif zipcode.length < 5
+#         zipcode = zipcode.rjust 5, "0"
+#         # if the zip code is more than 5 digits, truncate it to the first 5 digits
+#     elsif zipcode.length > 5
+#         zipcode = zipcode[0..4]
+#     end
+#     # if the zip code is 5 digits, assume it's correct
+#     puts "#{name} #{zipcode}"
+# end
+
+# # MOVING CLEAN ZIP CODES TO A METHOD
+# require "csv"
+# # CLEAN ZIP CODE METHOD
+# def clean_zipcode(zipcode)
+#     if zipcode.nil?
+#         "00000"
+#     elsif zipcode.length<5
+#         zipcode.rjust(5,"0")
+#     elsif zipcode.length>5
+#         zipcode[0..4]
+#     else 
+#         zipcode
+#     end
+# end
+
+# puts "EventManager Initialized!"
+
+# contents = CSV.open "event_attendees.csv", headers: true, header_converters: :symbol
+
+# contents.each do |row|
+#     name = row[:first_name]
+#     zipcode = clean_zipcode(row[:zipcode])
+
+#     puts "#{name} #{zipcode}"
+# end
+
+# MOVING CLEAN ZIP CODES TO A METHOD
 require "csv"
+
+# REFACTOR CLEAN ZIP CODE METHOD
+def clean_zipcode(zipcode)
+  zipcode.to_s.rjust(5, "0")[0..4]
+end
+
 puts "EventManager Initialized!"
 
-contents = CSV.open "event_attendees.csv"
+contents = CSV.open "event_attendees.csv", headers: true, header_converters: :symbol
+
 contents.each do |row|
-    name = row[2]
-    puts name
+    name = row[:first_name]
+    zipcode = clean_zipcode(row[:zipcode])
+
+    puts "#{name} #{zipcode}"
 end
