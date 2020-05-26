@@ -133,12 +133,149 @@
 #     puts "#{name} #{zipcode}"
 # end
 
-# MOVING CLEAN ZIP CODES TO A METHOD
-require "csv"
+# # MOVING CLEAN ZIP CODES TO A METHOD
+# require "csv"
 
-# REFACTOR CLEAN ZIP CODE METHOD
+# # REFACTOR CLEAN ZIP CODE METHOD
+# def clean_zipcode(zipcode)
+#   zipcode.to_s.rjust(5, "0")[0..4]
+# end
+
+# puts "EventManager Initialized!"
+
+# contents = CSV.open "event_attendees.csv", headers: true, header_converters: :symbol
+
+# contents.each do |row|
+#     name = row[:first_name]
+#     zipcode = clean_zipcode(row[:zipcode])
+
+#     puts "#{name} #{zipcode}"
+# end
+
+# USE GOOGLE'S CIVIC INFORMATION
+
+# # SHOWING ALL LEGISLATORS IN A ZIP CODE
+# require "csv"
+# require "google/apis/civicinfo_v2"
+
+# civic_info = Google::Apis::CivicinfoV2::CivicInfoService.new
+# civic_info.key = "AIzaSyClRzDqDh5MsXwnCWi0kOiiBivP6JsSyBw"
+
+# def clean_zipcode(zipcode)
+#   zipcode.to_s.rjust(5, "0")[0..4]
+# end
+
+# puts "EventManager Initialized!"
+
+# contents = CSV.open "event_attendees.csv", headers: true, header_converters: :symbol
+
+# contents.each do |row|
+#     name = row[:first_name]
+#     zipcode = clean_zipcode(row[:zipcode])
+
+#     legislators = civic_info.representative_info_by_address(
+#         address: zipcode,
+#         levels: "country",
+#         roles: ["legislatorUpperBody", "legislatorLowerBody"]
+#   )
+#   legislators = legislators.officials
+
+#     puts "#{name} #{zipcode} #{legislators}"
+# end
+
+# # SHOWING ALL LEGISLATORS IN A ZIP CODE, WITH EXCEPTIONS FOR WRONG ZIP CODE
+# require "csv"
+# require "google/apis/civicinfo_v2"
+
+# civic_info = Google::Apis::CivicinfoV2::CivicInfoService.new
+# civic_info.key = "AIzaSyClRzDqDh5MsXwnCWi0kOiiBivP6JsSyBw"
+
+# def clean_zipcode(zipcode)
+#   zipcode.to_s.rjust(5, "0")[0..4]
+# end
+
+# puts "EventManager Initialized!"
+
+# contents = CSV.open "event_attendees.csv", headers: true, header_converters: :symbol
+
+# contents.each do |row|
+#     name = row[:first_name]
+#     zipcode = clean_zipcode(row[:zipcode])
+
+#     begin
+#     legislators = civic_info.representative_info_by_address(
+#         address: zipcode,
+#         levels: "country",
+#         roles: ["legislatorUpperBody", "legislatorLowerBody"]
+#   )
+#   legislators = legislators.officials
+# rescue
+#     "You can find your legislators by visiting www.commoncause.org/take-action/find-elected-officials"
+# end
+
+#     puts "#{name} #{zipcode} #{legislators}"
+# end
+
+# # SHOWING ALL LEGISLATORS IN A ZIP CODE FIRST AND LAST NAMES ONLY, WITH EXCEPTIONS FOR WRONG ZIP CODE
+# require "csv"
+# require "google/apis/civicinfo_v2"
+
+# civic_info = Google::Apis::CivicinfoV2::CivicInfoService.new
+# civic_info.key = "AIzaSyClRzDqDh5MsXwnCWi0kOiiBivP6JsSyBw"
+
+# def clean_zipcode(zipcode)
+#   zipcode.to_s.rjust(5, "0")[0..4]
+# end
+
+# puts "EventManager Initialized!"
+
+# contents = CSV.open "event_attendees.csv", headers: true, header_converters: :symbol
+
+# contents.each do |row|
+#     name = row[:first_name]
+#     zipcode = clean_zipcode(row[:zipcode])
+
+#     begin
+#     legislators = civic_info.representative_info_by_address(
+#         address: zipcode,
+#         levels: "country",
+#         roles: ["legislatorUpperBody", "legislatorLowerBody"]
+#   )
+#   legislators = legislators.officials
+
+#   legislator_names = legislators.map(&:name)
+  
+#   legislators_string = legislator_names.join(", ")
+# rescue
+#     "You can find your legislators by visiting www.commoncause.org/take-action/find-elected-officials"
+# end
+
+#     puts "#{name} #{zipcode} #{legislators_string}"
+# end
+
+# SHOWING ALL LEGISLATORS IN A ZIP CODE FIRST AND LAST NAMES ONLY, WITH EXCEPTIONS FOR WRONG ZIP CODE
+require "csv"
+require "google/apis/civicinfo_v2"
+
 def clean_zipcode(zipcode)
-  zipcode.to_s.rjust(5, "0")[0..4]
+    zipcode.to_s.rjust(5, "0")[0..4]
+end
+
+def legislators_by_zipcode(zip)
+    civic_info = Google::Apis::CivicinfoV2::CivicInfoService.new
+    civic_info.key = "AIzaSyClRzDqDh5MsXwnCWi0kOiiBivP6JsSyBw"
+
+    begin
+    legislators = civic_info.representative_info_by_address(
+        address: zip,
+        levels: "country",
+        roles: ["legislatorUpperBody", "legislatorLowerBody"])
+    legislators = legislators.officials
+    legislator_names = legislators.map(&:name)
+    legislator_names.join(", ")
+    rescue
+    "You can find your legislators by visiting www.commoncause.org/take-action/find-elected-officials"
+    end
 end
 
 puts "EventManager Initialized!"
@@ -148,6 +285,9 @@ contents = CSV.open "event_attendees.csv", headers: true, header_converters: :sy
 contents.each do |row|
     name = row[:first_name]
     zipcode = clean_zipcode(row[:zipcode])
+    legislators = legislators_by_zipcode(zipcode)
 
-    puts "#{name} #{zipcode}"
+    puts "#{name} #{zipcode} #{legislators}"
 end
+
+# FORM LETTERS, FROM ATTENDEES TO REPRESENTATIVES
