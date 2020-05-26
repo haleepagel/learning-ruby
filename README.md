@@ -4,7 +4,7 @@ This was created during my time as a student at Code Chrysalis.
 
 This repo is my first experience using Ruby and is part on an assignment from my time as a student at Code Chrysalis. I followed a tutorial from [The Odin Project](theodinproject.com) to create an event manager.
 
-![image name here for alt text](images/imagefilepathhere.png)
+![image name here for alt text](event_manager/learningRuby.png)
 
 ## Getting Started
 
