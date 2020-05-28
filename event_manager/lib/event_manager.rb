@@ -477,11 +477,78 @@
 #     save_thank_you_letter(id,form_letter)
 # end
 
-# CLEAN UP PHONE NUMBERS
+# # CLEAN UP PHONE NUMBERS
+
+# require "csv"
+# require "google/apis/civicinfo_v2"
+# require "erb"
+
+# def clean_zipcode(zipcode)
+#     zipcode.to_s.rjust(5, "0")[0..4]
+# end
+
+# def clean_phone_numbers(phone_number)
+#     phone_number.to_s
+#     clean_number=phone_number.gsub(/[^0-9]/, "" )
+#     if clean_number.length<10
+#        clean_number= "invalid number on file"
+#     elsif clean_number.length>10
+#         clean_number[-10]
+#     else 
+#         clean_number
+#     end
+# end
+
+# def legislators_by_zipcode(zip)
+#     civic_info = Google::Apis::CivicinfoV2::CivicInfoService.new
+#     civic_info.key = "AIzaSyClRzDqDh5MsXwnCWi0kOiiBivP6JsSyBw"
+    
+#     begin
+#         legislators = civic_info.representative_info_by_address(
+#             address: zip,
+#             levels: "country",
+#             roles: ["legislatorUpperBody", "legislatorLowerBody"]
+#         ).officials
+#         rescue
+#             "You can find your legislators by visiting www.commoncause.org/take-action/find-elected-officials"
+#         end
+#     end
+
+# def save_thank_you_letter(id, form_letter)
+#     Dir.mkdir("output") unless Dir.exists?("output")
+
+#     filename = "output/thanks_#{id}.html"
+
+#     File.open(filename, "w") do |file|
+#         file.puts form_letter
+#     end
+# end
+    
+# puts "EventManager Initialized!"
+    
+# contents = CSV.open "event_attendees.csv", headers: true, header_converters: :symbol
+    
+# template_letter = File.read "form_letter.erb"
+# erb_template = ERB.new template_letter
+
+# contents.each do |row|
+#     id = row[0]
+#     name = row[:first_name]
+#     zipcode = clean_zipcode(row[:zipcode])
+#     phone = clean_phone_numbers(row[:homephone])
+#     legislators = legislators_by_zipcode(zipcode)
+#     form_letter = erb_template.result(binding)
+#     save_thank_you_letter(id,form_letter)
+# end
+
+# TIME TARGETING - FOR FUTURE ADVERTISING
+# FIRST USE DATETIME.STRPTIME TO PARSE DATE-TIME STRINGS AND CONVERT TO RUBY OBJECTS
+# THEN FIND THE HOURS PEOPLE REGISTERED
 
 require "csv"
 require "google/apis/civicinfo_v2"
 require "erb"
+require "date"
 
 def clean_zipcode(zipcode)
     zipcode.to_s.rjust(5, "0")[0..4]
@@ -489,8 +556,48 @@ end
 
 def clean_phone_numbers(phone_number)
     phone_number.to_s
-    phone_number.sub("^0-9", "" )
-    puts phone_number
+    clean_number=phone_number.gsub(/[^0-9]/, "" )
+    if clean_number.length<10
+       clean_number= "invalid number on file"
+    elsif clean_number.length>10
+        clean_number[-10]
+    else 
+        clean_number
+    end
+end
+
+def clean_registration_time(reg_time)
+  clean_reg=  DateTime.strptime(reg_time,"%m/%d/%y %H:%M")
+  hour = clean_reg.strftime("%I:%M%p - registration time")
+end
+
+def clean_weekday_reg_time(reg_time)
+    clean_reg =  DateTime.strptime(reg_time,"%m/%d/%y %H:%M")
+    date = clean_reg.strftime("%Y,%m,%d")
+    # date = date + "this is date"
+    # date = date.to_i
+    year = date[0,4].to_i
+    month = date[5..6].to_i
+    day = date[8..9].to_i
+    # weekday = year + month + day
+    weekday = Date.new(year,month,day).wday
+   # weekday.to_s
+
+    if weekday == 0
+        weekday = "Sunday"
+    elsif weekday == 1
+        weekday = "Monday"
+    elsif weekday == 2
+        weekday = "Tuesday"
+    elsif weekday == 3
+        weekday = "Wednesday"
+    elsif weekday == 4
+        weekday = "Thursday"
+    elsif weekday == 5
+        weekday = "Friday"
+    else
+        weekday = "Saturday"
+    end
 end
 
 def legislators_by_zipcode(zip)
@@ -532,5 +639,10 @@ contents.each do |row|
     phone = clean_phone_numbers(row[:homephone])
     legislators = legislators_by_zipcode(zipcode)
     form_letter = erb_template.result(binding)
+    registration_time = clean_registration_time(row[:regdate])
+    registration_day = clean_weekday_reg_time(row[:regdate])
     save_thank_you_letter(id,form_letter)
+    puts registration_time
+    puts registration_day + " - day of the week registered"
 end
+
