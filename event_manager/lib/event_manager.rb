@@ -625,6 +625,9 @@ def save_thank_you_letter(id, form_letter)
     end
 end
     
+puts "hello world"
+puts "this is my second line of code using ruby!"
+
 puts "EventManager Initialized!"
     
 contents = CSV.open "event_attendees.csv", headers: true, header_converters: :symbol
